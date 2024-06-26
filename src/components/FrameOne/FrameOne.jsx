@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import "./FrameOne.css"; // Importez le fichier CSS ici
 import { iconsImgs } from "../../utils/images";
-import { useContext } from "react";
 import { SidebarContext } from "../../context/sidebarContext";
 import Pagination from '../Pagination/pagination';
+
 const FrameOne = () => {
-  const [frames, setFrames]= useState([])
+  const [frames, setFrames] = useState([]);
   const { toggleSidebar } = useContext(SidebarContext);
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage, setpostsPerPage] = useState(10);
-  const lastPostIndex = currentPage + postsPerPage;
+  const [postsPerPage] = useState(10); 
+
+  const lastPostIndex = currentPage * postsPerPage;
   const firstPostIndex = lastPostIndex - postsPerPage;
   const currentPosts = frames.slice(firstPostIndex, lastPostIndex);
+
   useEffect(() => {
     loadFrames();
   }, []);
@@ -26,6 +28,7 @@ const FrameOne = () => {
       console.error("Error fetching frames:", error);
     }
   };
+
   const deleteFrame = async (id) => {
     try {
       await axios.delete(`http://localhost:8080/frame1/delete/${id}`);
@@ -36,14 +39,14 @@ const FrameOne = () => {
       console.error(`Error deleting frame with ID ${id}:`, error);
     }
   };
-  
+
   return (
     <div>
       <div className='title'>
-      <button type="button" className="sidebar-toggler" onClick={() => toggleSidebar() }>
-          <img src={ iconsImgs.menu } alt="" />
-      </button>
-      <h1>Explore the CO2, HCHO, TVOC values</h1>
+        <button type="button" className="sidebar-button" onClick={() => toggleSidebar()}>
+          <img src={iconsImgs.sidebar} alt="" />
+        </button>
+        <div className='frameone-title'>Explore the CO2, HCHO, TVOC values</div>
       </div>
       <div className="container">
         <table>
@@ -60,22 +63,27 @@ const FrameOne = () => {
           <tbody>
             {currentPosts.map((frame, index) => (
               <tr key={frame.id}>
-                <th scope='row' key={index}>{index+1}</th>
+                <th scope='row'>{firstPostIndex + index + 1}</th>
                 <td>{frame.co2}</td>
                 <td>{frame.hcho}</td>
                 <td>{frame.tvoc}</td>
                 <td>{frame.date}</td>
-                <td><img src={ iconsImgs.trash } alt="" onClick={() => deleteFrame(frame.id)} /></td>
+                <td>
+                  <img src={iconsImgs.trash} alt="" onClick={() => deleteFrame(frame.id)} />
+                </td>
               </tr>
             ))}
-           
           </tbody>
         </table>
-        <Pagination totalPosts={frames.length} postsPerPage={postsPerPage} setCurrentPage={setCurrentPage} 
-        currentPage={currentPage}/>
+        <Pagination
+          totalPosts={frames.length}
+          postsPerPage={postsPerPage}
+          setCurrentPage={setCurrentPage}
+          currentPage={currentPage}
+        />
       </div>
     </div>
   );
-}
+};
 
 export default FrameOne;

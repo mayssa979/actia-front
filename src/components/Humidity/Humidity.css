@@ -1,73 +1,51 @@
-/* Humidity.css */
-
-.subgrid-two-item {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 10px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 20px;
-  background-color: #e0f7fa;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.subgrid-two-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.grid-c-title {
+.humidity-container {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.grid-c-title-text {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #00796b;
-}
-
-.grid-c1-content {
-  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #004d40;
-  background-color: #fff;
+  height: 50%;
+  background-color: #f5f5f5;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.humidity-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.humidity-value {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+.humidity-icon {
+  width: 64px;
+  height: 64px;
+  margin-right: 1rem;
 }
 
 @media (max-width: 768px) {
-  .subgrid-two-item {
-    padding: 15px;
+  .humidity-container {
+    padding: 1rem;
+    min-height: 150px; 
   }
-
-  .grid-c-title-text {
-    font-size: 1.25rem;
-  }
-
-  .grid-c1-content {
-    font-size: 1.75rem;
-    padding: 15px;
-  }
-}
-
-@media (max-width: 480px) {
-  .subgrid-two-item {
-    padding: 10px;
-  }
-
-  .grid-c-title-text {
+  
+  .humidity-title {
     font-size: 1rem;
+    margin-bottom: 0.5rem;
   }
 
-  .grid-c1-content {
-    font-size: 1.5rem;
-    padding: 10px;
+  .humidity-value {
+    font-size: 2.5rem;
+  }
+
+  .humidity-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 0.5rem;
   }
 }

@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from "axios";
 import { iconsImgs } from "../../utils/images";
-import { useContext } from "react";
 import { SidebarContext } from "../../context/sidebarContext";
 import Pagination from '../Pagination/pagination';
 import "./FrameTwo.css";
+
 const FrameTwo = () => {
-  const [frames, setFrames]= useState([])
+  const [frames, setFrames] = useState([]);
   const { toggleSidebar } = useContext(SidebarContext);
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage, setpostsPerPage] = useState(10);
-  const lastPostIndex = currentPage + postsPerPage;
-  const firstPostIndex = lastPostIndex - postsPerPage;
-  const currentPosts = frames.slice(firstPostIndex, lastPostIndex);
+  const [postsPerPage] = useState(10); 
+
   useEffect(() => {
     loadFrames();
   }, []);
@@ -26,6 +24,7 @@ const FrameTwo = () => {
       console.error("Error fetching frames:", error);
     }
   };
+
   const deleteFrame = async (id) => {
     try {
       await axios.delete(`http://localhost:8080/frame2/delete/${id}`);
@@ -35,14 +34,18 @@ const FrameTwo = () => {
       console.error(`Error deleting frame with ID ${id}:`, error);
     }
   };
-  
+
+  const lastPostIndex = currentPage * postsPerPage;
+  const firstPostIndex = lastPostIndex - postsPerPage;
+  const currentPosts = frames.slice(firstPostIndex, lastPostIndex);
+
   return (
     <div>
-      <div className='title'>
-      <button type="button" className="sidebar-toggler" onClick={() => toggleSidebar() }>
-          <img src={ iconsImgs.menu } alt="" />
-      </button>
-      <h1>Explore the temperature and humidity values</h1>
+      <div className='frame-two'>
+        <button type="button" className="sidebar-button" onClick={() => toggleSidebar()}>
+          <img src={iconsImgs.sidebar} alt="" />
+        </button>
+        <div className='frametwo-title'>Explore the temperature and humidity values</div>
       </div>
       <div className="container">
         <table>
@@ -58,20 +61,26 @@ const FrameTwo = () => {
           <tbody>
             {currentPosts.map((frame, index) => (
               <tr key={frame.id}>
-                <th scope='row' key={index}>{index+1}</th>
+                <th scope='row'>{firstPostIndex + index + 1}</th>
                 <td>{frame.temp}</td>
                 <td>{frame.humidity}</td>
                 <td>{frame.date}</td>
-                <td><img src={ iconsImgs.trash } alt="" onClick={() => deleteFrame(frame.id)} /></td>
+                <td>
+                  <img src={iconsImgs.trash} alt="" onClick={() => deleteFrame(frame.id)} />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Pagination totalPosts={frames.length} postsPerPage={postsPerPage} setCurrentPage={setCurrentPage} 
-        currentPage={currentPage}/>
+        <Pagination
+          totalPosts={frames.length}
+          postsPerPage={postsPerPage}
+          setCurrentPage={setCurrentPage}
+          currentPage={currentPage}
+        />
       </div>
     </div>
   );
-}
+};
 
-export default FrameTwo
+export default FrameTwo;

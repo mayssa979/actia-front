@@ -13,6 +13,7 @@ const ContentMain = () => {
             <div className="grid-item"><Hcho /></div>
             <div className="grid-item"><Tvoc /></div>
         </div>
+        <br></br>
         <div className="content-grid-two">
             <div className="grid-item"><Temp /></div>
             <div className="grid-item"><Humidity /></div>
