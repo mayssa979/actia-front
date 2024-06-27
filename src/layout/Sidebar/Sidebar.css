@@ -1,6 +1,6 @@
 /* sidebar */
 .sidebar {
-    background-color: var(--clr-white);
+    background-color: var(--clr-sidebar);
     width: 260px;
     padding: 36px 20px;
     transition: var(--transition-default);
@@ -24,7 +24,7 @@
   }
   .info-name {
     font-size: 20px;
-    color: var(--clr-black);
+    color: var(--clr-white);
     text-transform: uppercase;
   }
   .navigation {
@@ -71,9 +71,12 @@
     border: 1px solid var(--clr-primar-light);
   }
   .nav-link.active {
-    background-color: var(--clr-actia);
+    background-color: #019e3d73;
     box-shadow: rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
       rgba(0, 0, 0, 0.04) 0px 10px 10px -5px;
+      .nav-link-text {
+        color: #fafdfb;
+      }
   }
   .nav-link-icon {
     width: 22px;
@@ -81,10 +84,12 @@
   }
   .nav-link-text {
     text-transform: capitalize;
-    color:var(--clr-black);
+    color: #fafdfb73;
   }
 
-
+.logo-actia{
+  width: 100px;
+}
   @media screen and (max-width: 1400px) {
     .sidebar {
       padding: 24px 16px;
@@ -101,6 +106,9 @@
       margin-left: -72px;
     }
     .info-name {
+      display: none;
+    }
+    .logo-actia{
       display: none;
     }
     .nav-item {

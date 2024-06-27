@@ -41,15 +41,15 @@ const FrameOne = () => {
   };
 
   return (
-    <div>
+    <div className='frame1'>
       <div className='title'>
-        <button type="button" className="sidebar-button" onClick={() => toggleSidebar()}>
+        <button type="button" className="sidebar-button1" onClick={() => toggleSidebar()}>
           <img src={iconsImgs.sidebar} alt="" />
         </button>
         <div className='frameone-title'>Explore the CO2, HCHO, TVOC values</div>
       </div>
-      <div className="container">
-        <table>
+      <div className="container-1">
+        <table className='table1'>
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -76,6 +76,7 @@ const FrameOne = () => {
           </tbody>
         </table>
         <Pagination
+          className="pagination"
           totalPosts={frames.length}
           postsPerPage={postsPerPage}
           setCurrentPage={setCurrentPage}

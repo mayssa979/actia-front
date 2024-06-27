@@ -2,16 +2,9 @@ import { iconsImgs } from "../utils/images";
 import { personsImgs } from "../utils/images";
 
 export const navigationLinks = [
-    { id: 1, title: 'Home', image: iconsImgs.home, path:'/home' },
+    { id: 1, title: 'Home', image: iconsImgs.home, path:'/' },
     { id: 2, title: 'Frame one', image: iconsImgs.budget, path:'/frameOne' },
     { id: 3, title: 'Frame two', image: iconsImgs.budget, path:'/frameTwo' }
-   /* { id: 4, title: 'Subscriptions', image: iconsImgs.wallet },
-    { id: 5, title: 'Loans', image: iconsImgs.bills },
-    { id: 6, title: 'Reports', image: iconsImgs.report },
-    { id: 7, title: 'Savings', image: iconsImgs.wallet },
-    { id: 8, title: 'Financial Advice', image: iconsImgs.wealth },
-    { id: 9, title: 'Account', image: iconsImgs.user },
-    { id: 10, title: 'Settings', image: iconsImgs.gears }*/
 ];
 
 export const transactions = [

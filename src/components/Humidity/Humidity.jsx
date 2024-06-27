@@ -17,6 +17,30 @@ const Humidity = () => {
       }
     };
     loadFrame();
+
+    // Establish WebSocket connection
+    const socket = new WebSocket('ws://localhost:8080/websocket-frame2');
+
+    socket.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const newData = JSON.parse(event.data);
+        setLastFrame(newData); // Update with the latest data
+      } catch (error) {
+        console.error('Error parsing message data:', error);
+      }
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      socket.close();
+    };
   }, []);
 
   if (!lastFrame) {

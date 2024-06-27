@@ -13,7 +13,7 @@ function App() {
       <div className='app'>
         <Sidebar />
         <Routes>
-          <Route path="/home" element={<Content />} />
+          <Route path="/" element={<Content />} />
           <Route path="/frameOne" element={<FrameOne />} />
           <Route path="/frameTwo" element={<FrameTwo />} />
         </Routes>

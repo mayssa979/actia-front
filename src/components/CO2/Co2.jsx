@@ -7,7 +7,32 @@ const Co2 = () => {
   const [lastFrame, setFrame] = useState({ co2: 0 });
 
   useEffect(() => {
+    // Load the initial frame
     loadFrame();
+
+    // Establish WebSocket connection
+    const socket = new WebSocket('ws://localhost:8080/websocket-frame1');
+
+    socket.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const newData = JSON.parse(event.data);
+        setFrame(newData); // Update with the latest data
+      } catch (error) {
+        console.error('Error parsing message data:', error);
+      }
+    };
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    return () => {
+      socket.close();
+    };
   }, []);
 
   const loadFrame = async () => {
@@ -28,18 +53,18 @@ const Co2 = () => {
 
   return (
     <div className='co2-container'>
-    <GaugeContainer>
-      <div className="gauge-title">
-        CO2
-      </div>
-      <div className="gauge-content">
-        <div className="gauge">
-          <div className="gauge-background"></div>
-          <div className="gauge-needle" style={{ transform: `rotate(${calculateRotation(lastFrame.co2)}deg)` }}></div>
+      <GaugeContainer>
+        <div className="gauge-title">
+          CO2
         </div>
-      </div>
-      <div className="gauge-value">{lastFrame.co2} ppm</div>
-    </GaugeContainer>
+        <div className="gauge-content">
+          <div className="gauge">
+            <div className="gauge-background"></div>
+            <div className="gauge-needle" style={{ transform: `rotate(${calculateRotation(lastFrame.co2)}deg)` }}></div>
+          </div>
+        </div>
+        <div className="gauge-value">{lastFrame.co2} ppm</div>
+      </GaugeContainer>
     </div>
   );
 };

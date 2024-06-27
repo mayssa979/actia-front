@@ -22,12 +22,11 @@ const Sidebar = () => {
 
   return (
     <div className={`sidebar ${sidebarClass}`}>
-      <div className="user-info">
-        <div className="info-img img-fit-cover">
-          <img src={personsImgs.person_two} alt="profile image" />
+      
+        <div >
+          <img className="logo-actia" src={personsImgs.actia} alt="logo actia" />
         </div>
-        <span className="info-name">alice-doe</span>
-      </div>
+     
 
       <nav className="navigation">
         <ul className="nav-list">

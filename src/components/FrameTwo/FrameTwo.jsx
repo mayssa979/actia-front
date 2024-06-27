@@ -40,15 +40,15 @@ const FrameTwo = () => {
   const currentPosts = frames.slice(firstPostIndex, lastPostIndex);
 
   return (
-    <div>
-      <div className='frame-two'>
+    <div className='frame2'>
+      <div className='title2'>
         <button type="button" className="sidebar-button" onClick={() => toggleSidebar()}>
           <img src={iconsImgs.sidebar} alt="" />
         </button>
         <div className='frametwo-title'>Explore the temperature and humidity values</div>
       </div>
-      <div className="container">
-        <table>
+      <div className="container2">
+        <table className='table2'>
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -73,6 +73,7 @@ const FrameTwo = () => {
           </tbody>
         </table>
         <Pagination
+          className="pagination"
           totalPosts={frames.length}
           postsPerPage={postsPerPage}
           setCurrentPage={setCurrentPage}
