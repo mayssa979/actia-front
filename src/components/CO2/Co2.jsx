@@ -7,7 +7,6 @@ const Co2 = () => {
   const [lastFrame, setFrame] = useState({ co2: 0 });
 
   useEffect(() => {
-    // Load the initial frame
     loadFrame();
 
     // Establish WebSocket connection
@@ -20,7 +19,7 @@ const Co2 = () => {
     socket.onmessage = (event) => {
       try {
         const newData = JSON.parse(event.data);
-        setFrame(newData); // Update with the latest data
+        setFrame(newData); 
       } catch (error) {
         console.error('Error parsing message data:', error);
       }
