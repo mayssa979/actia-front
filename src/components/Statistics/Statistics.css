@@ -1,19 +1,133 @@
 .statistics-container {
-    width: 100%;
-    display: flex;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.chart {
+  width: 100%;
+  margin-right: 1%;
+}
+
+.side {
+  width: 20%;
+  display: block;
+  margin-left: 1%;
+}
+.title-stat{
+  text-align: center;
+  margin-bottom: 3%;
+  color: #019e3d;
+}
+.view-selector {
+  align-self: flex-end;
+  margin-bottom: 20px;
+  position: relative;
+}
+.metric{
+  margin-right: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+.view-selector label {
+  margin-right: 10px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.view-selector select {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.co2 {
+  color: #8884d8;
+}
+
+.hcho {
+  color: #fe6c00;
+}
+
+.tvoc {
+  color: #019e3d;
+}
+
+.temperature {
+  color: #1e1611;
+}
+
+.humidity {
+  color: #e91e63;
+}
+
+.view-selector select:focus {
+  outline: none;
+  border-color: #8884d8;
+  box-shadow: 0 0 5px rgba(136, 132, 216, 0.5);
+}
+
+.view-selector select:hover {
+  background-color: #e9e9e9;
+}
+
+.checkboxes label {
+  display: flex;
+  align-items: center;
+  color: #555;
+}
+
+.checkboxes input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+/* Colors based on the stroke colors */
+.checkboxes label input[type="checkbox"][checked="true"] + span {
+  color: #8884d8; /* CO2 color */
+}
+
+.checkboxes label input[type="checkbox"][checked="true"] + span {
+  color: #fe6c00; /* HCHO color */
+}
+
+.checkboxes label input[type="checkbox"][checked="true"] + span {
+  color: #019e3d; /* TVOC color */
+}
+
+.checkboxes label input[type="checkbox"][checked="true"] + span {
+  color: #1e1611; /* Temperature color */
+}
+
+.checkboxes label input[type="checkbox"][checked="true"] + span {
+  color: #e91e63; /* Humidity color */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .statistics-container {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
   }
-  
-  .chart1, .chart2, .chart3, .chart4 {
+
+  .chart {
     width: 100%;
-    margin-bottom: 20px; /* Adjust margin as needed */
+    margin-right: 0;
+    margin-bottom: 20px;
   }
-  
-  @media (max-width: 768px) {
-    .chart1, .chart2, .chart3, .chart4 {
-      width: 100%;
-    }
+
+  .side {
+    width: 100%;
   }
-  
+
+  .checkboxes {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .checkboxes label {
+    flex-basis: 50%; /* Two checkboxes per row */
+  }
+}

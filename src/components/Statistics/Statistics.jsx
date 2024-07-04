@@ -4,198 +4,257 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import './Statistics.css';
 
 const Statistics = () => {
-  const [co2Data, setCo2Data] = useState([]);
-  const [tvocHchoDataThisWeek, setTvocHchoDataThisWeek] = useState([]);
-  const [temperatureDataThisWeek, setTemperatureDataThisWeek] = useState([]);
-  const [humidityDataThisWeek, setHumidityDataThisWeek] = useState([]);
+  const [selectedView, setSelectedView] = useState('weekly');
+  const [data, setData] = useState([]);
+  const [selectedMetrics, setSelectedMetrics] = useState({ co2: true, hcho: false, tvoc: false, temp: false, humidity: false });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch CO2, TVOC, and HCHO data
         const response1 = await axios.get("http://localhost:8080/frame1");
-        console.log('Raw CO2, TVOC, HCHO data:', response1.data);
-        const processedData1 = processData(response1.data);
-        console.log('Processed CO2, TVOC, HCHO data:', processedData1);
-        setCo2Data(processedData1.co2Data);
-        setTvocHchoDataThisWeek(processedData1.tvocHchoDataThisWeek);
-
-        // Fetch temperature and humidity data
         const response2 = await axios.get("http://localhost:8080/frame2");
-        console.log('Raw temperature and humidity data:', response2.data);
-        const processedData2 = processTemperatureAndHumidityData(response2.data);
-        console.log('Processed temperature and humidity data:', processedData2);
-        setTemperatureDataThisWeek(processedData2.temperatureDataThisWeek);
-        setHumidityDataThisWeek(processedData2.humidityDataThisWeek);
+        handleViewChange(selectedView, response1.data, response2.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
-
     fetchData();
-  }, []);
+  }, [selectedView]);
 
-  const processData = (rawData) => {
-    if (!Array.isArray(rawData)) {
-      console.error('Invalid data format:', rawData);
-      return { co2Data: [], tvocHchoDataThisWeek: [] };
+  const handleViewChange = (view, rawData1, rawData2) => {
+    setSelectedView(view);
+    let processedData = [];
+
+    switch (view) {
+      case 'daily':
+        processedData = processDailyData(rawData1, rawData2);
+        break;
+      case 'monthly':
+        processedData = processMonthlyData(rawData1, rawData2);
+        break;
+      case 'weekly':
+      default:
+        processedData = processWeeklyData(rawData1, rawData2);
+        break;
     }
 
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const co2Data = [];
-    const tvocHchoDataThisWeek = [];
-
-    // Get the current date
-    const now = new Date();
-    // Get the first day of the current week (Sunday)
-    const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-
-    // Initialize data arrays with placeholders for all days of the week
-    daysOfWeek.forEach(day => {
-      co2Data.push({ day, co2: 0 });
-      tvocHchoDataThisWeek.push({ day, tvoc: 0, hcho: 0 });
-    });
-
-    // Count entries per day for averaging
-    const countPerDay = {};
-    daysOfWeek.forEach(day => {
-      countPerDay[day] = 0;
-    });
-
-    // Fill data arrays with actual data for the current week
-    rawData.forEach(entry => {
-      const date = new Date(entry.date);
-      const day = daysOfWeek[date.getDay()];
-
-      // CO2 Data (current week only)
-      if (date >= firstDayOfWeek) {
-        co2Data[daysOfWeek.indexOf(day)].co2 += entry.co2;
-        countPerDay[day]++;
-      }
-
-      // TVOC & HCHO Data (current week only)
-      if (date >= firstDayOfWeek) {
-        tvocHchoDataThisWeek[daysOfWeek.indexOf(day)].tvoc += entry.tvoc;
-        tvocHchoDataThisWeek[daysOfWeek.indexOf(day)].hcho += entry.hcho;
-      }
-    });
-
-    // Calculate averages
-    daysOfWeek.forEach(day => {
-      if (countPerDay[day] > 0) {
-        co2Data[daysOfWeek.indexOf(day)].co2 /= countPerDay[day];
-        tvocHchoDataThisWeek[daysOfWeek.indexOf(day)].tvoc /= countPerDay[day];
-        tvocHchoDataThisWeek[daysOfWeek.indexOf(day)].hcho /= countPerDay[day];
-      }
-    });
-
-    return { co2Data, tvocHchoDataThisWeek };
+    setData(processedData);
   };
 
-  const processTemperatureAndHumidityData = (rawData) => {
-    if (!Array.isArray(rawData)) {
-      console.error('Invalid temperature and humidity data format:', rawData);
-      return { temperatureDataThisWeek: [], humidityDataThisWeek: [] };
+  const processWeeklyData = (rawData1, rawData2) => {
+    if (!rawData1 || !rawData2) {
+      return [];
     }
 
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const temperatureDataThisWeek = [];
-    const humidityDataThisWeek = [];
-
-    // Get the current date
+    const data = [];
     const now = new Date();
-    // Get the first day of the current week (Sunday)
     const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
-
-    // Count entries per day for averaging
     const countPerDay = {};
+
     daysOfWeek.forEach(day => {
+      const entry = { day, co2: 0, hcho: 0, tvoc: 0, temp: 0, humidity: 0 };
+      data.push(entry);
       countPerDay[day] = 0;
     });
 
-    // Initialize temperature and humidity data arrays with placeholders for all days of the week
-    daysOfWeek.forEach(day => {
-      temperatureDataThisWeek.push({ day, temperature: 0 });
-      humidityDataThisWeek.push({ day, humidity: 0 });
-    });
+    rawData1.forEach(entry1 => {
+      const date1 = new Date(entry1.date);
+      const day = daysOfWeek[date1.getDay()];
 
-    // Fill temperature and humidity data arrays with actual data for the current week
-    rawData.forEach(entry => {
-      const date = new Date(entry.date);
-      const day = daysOfWeek[date.getDay()];
-
-      if (date >= firstDayOfWeek) {
-        temperatureDataThisWeek[daysOfWeek.indexOf(day)].temperature += entry.temp;
-        humidityDataThisWeek[daysOfWeek.indexOf(day)].humidity += entry.humidity;
+      if (date1 >= firstDayOfWeek) {
+        data[daysOfWeek.indexOf(day)].co2 += entry1.co2 || 0;
+        data[daysOfWeek.indexOf(day)].hcho += entry1.hcho || 0;
+        data[daysOfWeek.indexOf(day)].tvoc += entry1.tvoc || 0;
         countPerDay[day]++;
       }
     });
 
-    // Calculate averages
-    daysOfWeek.forEach(day => {
-      if (countPerDay[day] > 0) {
-        temperatureDataThisWeek[daysOfWeek.indexOf(day)].temperature /= countPerDay[day];
-        humidityDataThisWeek[daysOfWeek.indexOf(day)].humidity /= countPerDay[day];
+    rawData2.forEach(entry2 => {
+      const date2 = new Date(entry2.date);
+      const day = daysOfWeek[date2.getDay()];
+
+      if (date2 >= firstDayOfWeek) {
+        data[daysOfWeek.indexOf(day)].temp += entry2.temp || 0;
+        data[daysOfWeek.indexOf(day)].humidity += entry2.humidity || 0;
       }
     });
 
-    return { temperatureDataThisWeek, humidityDataThisWeek };
+    daysOfWeek.forEach(day => {
+      if (countPerDay[day] > 0) {
+        data[daysOfWeek.indexOf(day)].co2 /= countPerDay[day];
+        data[daysOfWeek.indexOf(day)].hcho /= countPerDay[day];
+        data[daysOfWeek.indexOf(day)].tvoc /= countPerDay[day];
+        data[daysOfWeek.indexOf(day)].temp /= countPerDay[day];
+        data[daysOfWeek.indexOf(day)].humidity /= countPerDay[day];
+      }
+    });
+
+    return data;
+  };
+
+  const processDailyData = (rawData1, rawData2) => {
+    if (!rawData1 || !rawData2) {
+      return [];
+    }
+
+    const data = [];
+    const now = new Date();
+    const today = now.toDateString();
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+
+    hours.forEach(hour => {
+      const time = `${hour}:00`;
+      const entry = { time, co2: 0, hcho: 0, tvoc: 0, temp: 0, humidity: 0 };
+      data.push(entry);
+    });
+
+    rawData1.forEach(entry1 => {
+      const date1 = new Date(entry1.date);
+      if (date1.toDateString() === today) {
+        const hour = date1.getHours();
+        data[hour].co2 += entry1.co2 || 0;
+        data[hour].hcho += entry1.hcho || 0;
+        data[hour].tvoc += entry1.tvoc || 0;
+      }
+    });
+
+    rawData2.forEach(entry2 => {
+      const date2 = new Date(entry2.date);
+      if (date2.toDateString() === today) {
+        const hour = date2.getHours();
+        data[hour].temp += entry2.temp || 0;
+        data[hour].humidity += entry2.humidity || 0;
+      }
+    });
+
+    return data;
+  };
+
+  const processMonthlyData = (rawData1, rawData2) => {
+    if (!rawData1 || !rawData2) {
+      return [];
+    }
+
+    const months = Array.from({ length: 12 }, (_, i) => new Date(0, i).toLocaleString('en-US', { month: 'long' }));
+    const data = [];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const countPerMonth = {};
+
+    months.forEach(month => {
+      const entry = { month, co2: 0, hcho: 0, tvoc: 0, temp: 0, humidity: 0 };
+      data.push(entry);
+      countPerMonth[month] = 0;
+    });
+
+    rawData1.forEach(entry1 => {
+      const date1 = new Date(entry1.date);
+      const month = months[date1.getMonth()];
+
+      if (date1.getFullYear() === currentYear) {
+        data[months.indexOf(month)].co2 += entry1.co2 || 0;
+        data[months.indexOf(month)].hcho += entry1.hcho || 0;
+        data[months.indexOf(month)].tvoc += entry1.tvoc || 0;
+        countPerMonth[month]++;
+      }
+    });
+
+    rawData2.forEach(entry2 => {
+      const date2 = new Date(entry2.date);
+      const month = months[date2.getMonth()];
+
+      if (date2.getFullYear() === currentYear) {
+        data[months.indexOf(month)].temp += entry2.temp || 0;
+        data[months.indexOf(month)].humidity += entry2.humidity || 0;
+      }
+    });
+
+    months.forEach(month => {
+      if (countPerMonth[month] > 0) {
+        data[months.indexOf(month)].co2 /= countPerMonth[month];
+        data[months.indexOf(month)].hcho /= countPerMonth[month];
+        data[months.indexOf(month)].tvoc /= countPerMonth[month];
+        data[months.indexOf(month)].temp /= countPerMonth[month];
+        data[months.indexOf(month)].humidity /= countPerMonth[month];
+      }
+    });
+
+    return data;
+  };
+
+  const getXAxisKey = () => {
+    switch (selectedView) {
+      case 'daily':
+        return 'time';
+      case 'monthly':
+        return 'month';
+      case 'weekly':
+      default:
+        return 'day';
+    }
+  };
+
+  const handleMetricChange = (metric) => {
+    setSelectedMetrics(prevState => ({
+      ...prevState,
+      [metric]: !prevState[metric]
+    }));
   };
 
   return (
     <div className="statistics-container">
-      <div className="chart1">
-        <h2>CO2 Levels This Week (PPM)</h2>
+      
+      <div className="chart">
+        <h1 className='title-stat'>{selectedView.charAt(0).toUpperCase() + selectedView.slice(1)} Metrics Evolution</h1>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={co2Data}>
+          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
+            <XAxis dataKey={getXAxisKey()} />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="co2" stroke="#8884d8" activeDot={{ r: 8 }} />
+            {selectedMetrics.co2 && <Line type="monotone" dataKey="co2" stroke="#8884d8" activeDot={{ r: 8 }} />}
+            {selectedMetrics.hcho && <Line type="monotone" dataKey="hcho" stroke="#fe6c00" activeDot={{ r: 8 }} />}
+            {selectedMetrics.tvoc && <Line type="monotone" dataKey="tvoc" stroke="#019e3d" activeDot={{ r: 8 }} />}
+            {selectedMetrics.temp && <Line type="monotone" dataKey="temp" stroke="#1e1611" activeDot={{ r: 8 }} />}
+            {selectedMetrics.humidity && <Line type="monotone" dataKey="humidity" stroke="#E91E63" activeDot={{ r: 8 }} />}
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="chart2">
-        <h2>TVOC & HCHO Levels This Week (mg/m³)</h2>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={tvocHchoDataThisWeek}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="tvoc" stroke="#019e3d" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="hcho" stroke="#fe6c00" activeDot={{ r: 8 }} />
-          </LineChart>
-        </ResponsiveContainer>
+
+      <div className='side'>
+      <div className="view-selector">
+        <label htmlFor="view">View: </label>
+        <select id="view" value={selectedView} onChange={(e) => handleViewChange(e.target.value)}>
+          <option value="weekly">Weekly</option>
+          <option value="daily">Daily</option>
+          <option value="monthly">Monthly</option>
+        </select>
       </div>
-      <div className="chart3">
-        <h2>Temperature This Week (°C)</h2>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={temperatureDataThisWeek}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="temperature" stroke="#3333FF" activeDot={{ r: 8 }} />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="checkboxes">
+        <div className='metric'>Select Metric(s) to Display: </div>
+        <label>
+          <input type="checkbox" checked={selectedMetrics.co2} onChange={() => handleMetricChange('co2')} />
+          <div  className='co2'>CO2</div>
+        </label>
+        <label>
+          <input type="checkbox" checked={selectedMetrics.hcho} onChange={() => handleMetricChange('hcho')} />
+          <div  className='hcho'>HCHO</div>
+        </label>
+        <label>
+          <input type="checkbox" checked={selectedMetrics.tvoc} onChange={() => handleMetricChange('tvoc')} />
+          <div  className='tvoc'>TVOC</div>
+        </label>
+        <label>
+          <input type="checkbox" checked={selectedMetrics.temp} onChange={() => handleMetricChange('temp')} />
+          <div  className='temperature'>Temperature</div>
+        </label>
+        <label>
+          <input type="checkbox" checked={selectedMetrics.humidity} onChange={() => handleMetricChange('humidity')} />
+          <div  className='humidity'>Humidity</div>
+        </label>
       </div>
-      <div className="chart4">
-        <h2>Humidity This Week (%)</h2>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={humidityDataThisWeek}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="humidity" stroke="#E91E63" activeDot={{ r: 8 }} />
-          </LineChart>
-        </ResponsiveContainer>
       </div>
     </div>
   );

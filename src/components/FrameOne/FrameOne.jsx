@@ -54,8 +54,8 @@ const FrameOne = () => {
             <tr>
               <th scope="col">#</th>
               <th scope="col">CO2 (PPM)</th>
-              <th scope="col">HCHO (g/m^3)</th>
-              <th scope="col">TVOC (g/m^3)</th>
+              <th scope="col">HCHO (mg/m³)</th>
+              <th scope="col">TVOC (mg/m³)</th>
               <th scope="col">Date</th>
               <th scope="col">Action</th>
             </tr>
