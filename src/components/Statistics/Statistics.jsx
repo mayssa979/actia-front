@@ -29,8 +29,11 @@ const Statistics = () => {
       case 'daily':
         processedData = processDailyData(rawData1, rawData2);
         break;
-      case 'monthly':
+      case 'yearly':
         processedData = processMonthlyData(rawData1, rawData2);
+        break;
+      case 'monthly':
+        processedData = processMonthlyPerDayData(rawData1, rawData2);
         break;
       case 'weekly':
       default:
@@ -183,12 +186,62 @@ const Statistics = () => {
     return data;
   };
 
+  const processMonthlyPerDayData = (rawData1, rawData2) => {
+    if (!rawData1 || !rawData2) {
+      return [];
+    }
+
+    const data = [];
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      data.push({ day: i.toString(), co2: 0, hcho: 0, tvoc: 0, temp: 0, humidity: 0 });
+    }
+
+    const countPerDay = Array(daysInMonth).fill(0);
+
+    rawData1.forEach(entry1 => {
+      const date1 = new Date(entry1.date);
+      if (date1.getMonth() === now.getMonth() && date1.getFullYear() === now.getFullYear()) {
+        const day = date1.getDate();
+        data[day - 1].co2 += entry1.co2 || 0;
+        data[day - 1].hcho += entry1.hcho || 0;
+        data[day - 1].tvoc += entry1.tvoc || 0;
+        countPerDay[day - 1]++;
+      }
+    });
+
+    rawData2.forEach(entry2 => {
+      const date2 = new Date(entry2.date);
+      if (date2.getMonth() === now.getMonth() && date2.getFullYear() === now.getFullYear()) {
+        const day = date2.getDate();
+        data[day - 1].temp += entry2.temp || 0;
+        data[day - 1].humidity += entry2.humidity || 0;
+      }
+    });
+
+    for (let i = 0; i < daysInMonth; i++) {
+      if (countPerDay[i] > 0) {
+        data[i].co2 /= countPerDay[i];
+        data[i].hcho /= countPerDay[i];
+        data[i].tvoc /= countPerDay[i];
+        data[i].temp /= countPerDay[i];
+        data[i].humidity /= countPerDay[i];
+      }
+    }
+
+    return data;
+  };
+
   const getXAxisKey = () => {
     switch (selectedView) {
       case 'daily':
         return 'time';
-      case 'monthly':
+      case 'yearly':
         return 'month';
+      case 'monthly':
+        return 'day';
       case 'weekly':
       default:
         return 'day';
@@ -196,9 +249,9 @@ const Statistics = () => {
   };
 
   const handleMetricChange = (metric) => {
-    setSelectedMetrics(prevState => ({
-      ...prevState,
-      [metric]: !prevState[metric]
+    setSelectedMetrics(prevSelectedMetrics => ({
+      ...prevSelectedMetrics,
+      [metric]: !prevSelectedMetrics[metric]
     }));
   };
 
@@ -227,9 +280,10 @@ const Statistics = () => {
       <div className="view-selector">
         <label htmlFor="view">View: </label>
         <select id="view" value={selectedView} onChange={(e) => handleViewChange(e.target.value)}>
-          <option value="weekly">Weekly</option>
           <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
           <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
         </select>
       </div>
       <div className="checkboxes">
