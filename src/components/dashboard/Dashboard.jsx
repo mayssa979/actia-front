@@ -13,7 +13,7 @@ const Dashboard = () => {
         socket.onmessage = (event) => {
             try {
                 const newData = JSON.parse(event.data);
-                setLatestData(newData); // Update with the latest data
+                setLatestData(newData); 
             } catch (error) {
                 console.error('Error parsing message data:', error);
             }

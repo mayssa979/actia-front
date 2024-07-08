@@ -257,7 +257,6 @@ const Statistics = () => {
 
   return (
     <div className="statistics-container">
-      
       <div className="chart">
         <h1 className='title-stat'>{selectedView.charAt(0).toUpperCase() + selectedView.slice(1)} Metrics Evolution</h1>
         <ResponsiveContainer width="100%" height={400}>
